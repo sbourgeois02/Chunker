@@ -1,0 +1,14 @@
+# Ignore input and output directories
+inputFiles/
+chunked_files/
+
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+
+# Backup files
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
