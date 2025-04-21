@@ -1,0 +1,9 @@
+# config.py
+
+MAX_WORDS = 450
+OVERLAP_SENTENCES = 2
+MAX_OVERLAP_WORDS = 50
+MIN_NEW_WORDS = 250
+
+OUTPUT_DIR = "chunked_files"
+INPUT_DIR = "inputFiles"
