@@ -15,8 +15,8 @@ def process_file(filepath, output_dir):
 
 def main():
     parser = argparse.ArgumentParser(description="Chunk documents with overlap.")
-    parser.add_argument("--input_dir", default=INPUT_DIR, help="Directory of input files")
-    parser.add_argument("--output_dir", default=OUTPUT_DIR, help="Directory for output chunks")
+    parser.add_argument("-i", "--input_dir", default=INPUT_DIR, help="Directory of input files")
+    parser.add_argument("-o", "--output_dir", default=OUTPUT_DIR, help="Directory for output chunks")
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
