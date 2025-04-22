@@ -1,17 +1,12 @@
-# main.py
-
 import os
 import argparse
+from tqdm import tqdm
+
 from utils.detect_filetype import get_handler_for_file
 from chunking.chunker import chunk_text
 from utils.io_helpers import save_chunks
-from config import OUTPUT_DIR,INPUT_DIR
+from config import INPUT_DIR, OUTPUT_DIR
 
-def process_file(filepath, output_dir):
-    handler = get_handler_for_file(filepath)
-    text = handler.load_text(filepath)
-    chunks = chunk_text(text)
-    save_chunks(filepath, chunks, output_dir)
 
 def main():
     parser = argparse.ArgumentParser(description="Chunk documents with overlap.")
@@ -19,16 +14,43 @@ def main():
     parser.add_argument("-o", "--output_dir", default=OUTPUT_DIR, help="Directory for output chunks")
     args = parser.parse_args()
 
-    os.makedirs(args.output_dir, exist_ok=True)
+    input_files = [
+        os.path.join(args.input_dir, f)
+        for f in os.listdir(args.input_dir)
+        if os.path.isfile(os.path.join(args.input_dir, f))
+    ]
 
-    for filename in os.listdir(args.input_dir):
-        filepath = os.path.join(args.input_dir, filename)
-        if os.path.isfile(filepath):
-            try:
-                print(f"Processing {filename}...")
-                process_file(filepath, args.output_dir)
-            except Exception as e:
-                print(f"Error processing {filename}: {e}")
+    print(f"\n📦 Starting chunking for {len(input_files)} files...\n")
+
+    # Top-level progress bar
+    overall_bar = tqdm(total=len(input_files), desc="Overall Progress", position=0, leave=True, unit="file")
+
+    for filepath in input_files:
+        try:
+            filename = os.path.basename(filepath)
+            file_bar = tqdm(total=3, desc=f"{filename}", position=1, leave=False, unit="step")
+
+            handler = get_handler_for_file(filepath)
+            file_bar.update(1)
+
+            text = handler.load_text(filepath)
+            file_bar.update(1)
+
+            chunks = chunk_text(text)
+            save_chunks(filepath, chunks, args.output_dir)
+            file_bar.update(1)
+
+            file_bar.close()
+            tqdm.write(f"✅ {filename} → {len(chunks)} chunks saved")
+
+            overall_bar.update(1)
+
+        except Exception as e:
+            tqdm.write(f"❌ Error processing {filepath}: {e}")
+
+    overall_bar.close()
+    print("\n✅ All files processed.\n")
+
 
 if __name__ == "__main__":
     main()
